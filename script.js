@@ -1206,53 +1206,29 @@ const Game = {
     });
   },
   renderAll() { this.compartments.forEach(comp => this.renderCompartment(comp)); },
-  renderCompartment(compartment) {
+renderCompartment(compartment) {
   const cells = UI.getCells(compartment.element);
   
-  // Limpiamos las clases y quitamos los estilos en línea forzados
-  cells.forEach(cell => {
-    const allObjs = cell.querySelectorAll('.obj');
-    allObjs.forEach(obj => {
-      obj.style.pointerEvents = 'none';
-      obj.classList.remove('front');
-      obj.classList.add('back');
-      
-      // Limpiamos los estilos inyectados que rompían el diseño 3D
-      obj.style.removeProperty('filter');
-      obj.style.removeProperty('box-shadow');
-      obj.style.removeProperty('opacity');
-    });
-  });
-  
+  // Solo actualizar clases y data-attributes, NO estilos inline
   compartment.layers.forEach((layer, depth) => {
     layer.slots.forEach((obj, slot) => {
       if (!obj || !obj.element) return;
       const cell = cells[slot];
       if (!cell) return;
       
-      if (obj.element.parentElement !== cell) cell.appendChild(obj.element);
+      // Mover el elemento si es necesario
+      if (obj.element.parentElement !== cell) {
+        cell.appendChild(obj.element);
+      }
       
-      const active = depth === 0;
-      const [dx, bottom, scale] = Config.DEPTH_OFFSETS[Math.min(depth, Config.DEPTH_OFFSETS.length - 1)];
-      
+      // Actualizar data-attributes (CSS los usa)
       obj.element.dataset.depth = depth;
       obj.element.dataset.pos = Number(cell.dataset.pos || 0);
       
-      // Alternamos clases para que el CSS decida cómo se ven
-      obj.element.classList.toggle('front', active);
-      obj.element.classList.toggle('back', !active);
-      obj.element.style.pointerEvents = active ? 'auto' : 'none';
-      
-      // Solo actualizamos variables posicionales
-      obj.element.style.setProperty('--dx', `${dx}px`);
-      obj.element.style.setProperty('--bottom', `${bottom}px`);
-      obj.element.style.setProperty('--scale', scale);
-      obj.element.style.setProperty('--z', 40 - depth);
-      
-      // Nos aseguramos de no inyectar filter, boxShadow ni opacity aquí
-      obj.element.style.removeProperty('filter');
-      obj.element.style.removeProperty('box-shadow');
-      obj.element.style.removeProperty('opacity');
+      // Cambiar clases (CSS define los estilos)
+      obj.element.classList.toggle('front', depth === 0);
+      obj.element.classList.toggle('back', depth !== 0);
+      obj.element.classList.toggle('depth-1', depth === 1);
     });
   });
 }
