@@ -1206,7 +1206,7 @@ const Game = {
     });
   },
   renderAll() { this.compartments.forEach(comp => this.renderCompartment(comp)); },
-    renderCompartment(compartment) {
+  renderCompartment(compartment) {
     const cells = UI.getCells(compartment.element);
     
     // CORRECCIÓN: Primero aplicar estilos "back" a TODOS los objetos en el DOM
