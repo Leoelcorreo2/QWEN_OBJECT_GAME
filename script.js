@@ -32,8 +32,8 @@ const Config = {
     cheese: { emoji:'🧀' },
     banana: { emoji:'🍌' },
     cookie: { emoji:'🍪' },
-    cup:    { emoji:'🥤' },
-    ball:   { emoji:'🏐' },
+    cup:    { emoji:'' },
+    ball:   { emoji:'' },
     snack:  { emoji:'🍿' }
   },
   
@@ -240,10 +240,10 @@ const UI = {
   updateHint(level) {
     const hints = {
       1: '💡 Junta los 3 objetos iguales. Toca un objeto y después una posición libre.',
-      2: '👉 Busca los 3 objetos iguales y colócalos en posiciones libres.',
+      2: ' Busca los 3 objetos iguales y colócalos en posiciones libres.',
       3: '🧩 Los objetos de atrás están sombreados. Solo mueve los de delante.',
       4: '🔎 Cuando una fila queda vacía, aparece la capa siguiente.',
-      5: '🧠 Planifica los movimientos. Consigue combos encadenando tríos rápidos 🔥',
+      5: ' Planifica los movimientos. Consigue combos encadenando tríos rápidos 🔥',
       10: '⚠️ Los tríos pueden estar separados. Usa power-ups cuando los consigas 🎁',
       default: '🎯 Observa, planifica y reúne los tríos.'
     };
@@ -637,7 +637,7 @@ const Shop = {
         UI.updateScore(Game.state.score);
         Game.saveProgress();
         Audio.shop();
-        UI.showToast(`Comprado ${{ bomb: '💣', shuffle: '🔀', time: '⏱️' }[chosen]}`);
+        UI.showToast(`Comprado ${{ bomb: '💣', shuffle: '', time: '⏱️' }[chosen]}`);
         this.open();
       } else UI.showToast('Power-up al máximo');
     } else {
@@ -1208,7 +1208,23 @@ const Game = {
   renderAll() { this.compartments.forEach(comp => this.renderCompartment(comp)); },
   renderCompartment(compartment) {
     const cells = UI.getCells(compartment.element);
-    cells.forEach(cell => { cell.querySelectorAll('.obj').forEach(obj => obj.style.pointerEvents = 'none'); });
+    
+    // CORRECCIÓN: Primero aplicar estilos "back" a TODOS los objetos en el DOM
+    cells.forEach(cell => {
+      const allObjs = cell.querySelectorAll('.obj');
+      allObjs.forEach(obj => {
+        obj.style.pointerEvents = 'none';
+        const variantFilter = obj.style.getPropertyValue('--variant-filter') || 'none';
+        const variantColor = obj.style.getPropertyValue('--c') || '#d64b4b';
+        obj.style.filter = `${variantFilter} brightness(.58) saturate(.58)`;
+        obj.style.boxShadow = `0 0 0 2px ${variantColor} inset, 0 3px 6px #0002`;
+        obj.style.opacity = '0.22';
+        obj.classList.remove('front');
+        obj.classList.add('back');
+      });
+    });
+    
+    // Luego aplicar estilos correctos a los objetos en las capas
     compartment.layers.forEach((layer, depth) => {
       layer.slots.forEach((obj, slot) => {
         if (!obj || !obj.element) return;
