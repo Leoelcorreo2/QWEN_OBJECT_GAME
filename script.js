@@ -32,8 +32,8 @@ const Config = {
     cheese: { emoji:'🧀' },
     banana: { emoji:'🍌' },
     cookie: { emoji:'🍪' },
-    cup:    { emoji:'' },
-    ball:   { emoji:'' },
+    cup:    { emoji:'🥤' },
+    ball:   { emoji:'🏀' },
     snack:  { emoji:'🍿' }
   },
   

@@ -548,54 +548,7 @@ body.bombMode::after{
   display:block
 }
 
-/* Estados de los objetos según profundidad */
-.obj.front {
-  opacity: 1;
-  filter: var(--variant-filter, none);
-  box-shadow: 0 0 0 3px var(--c) inset, 0 4px 8px #0003;
-  pointer-events: auto;
-}
 
-.obj.back {
-  opacity: 0.22;
-  filter: var(--variant-filter, none) brightness(.58) saturate(.58);
-  box-shadow: 0 0 0 2px var(--c) inset, 0 3px 6px #0002;
-  pointer-events: none;
-}
-
-/* Capa intermedia (depth=1) más visible que las profundas */
-.obj.back.depth-1 {
-  opacity: 0.38;
-}
-
-/* Posicionamiento por profundidad */
-.obj[data-depth="0"] {
-  --dx: 0px;
-  --bottom: 4px;
-  --scale: 1;
-  --z: 40;
-}
-
-.obj[data-depth="1"] {
-  --dx: -7px;
-  --bottom: 0px;
-  --scale: 0.97;
-  --z: 39;
-}
-
-.obj[data-depth="2"] {
-  --dx: 7px;
-  --bottom: 0px;
-  --scale: 0.94;
-  --z: 38;
-}
-
-.obj[data-depth="3"] {
-  --dx: -5px;
-  --bottom: 0px;
-  --scale: 0.92;
-  --z: 37;
-}
 
 #resetConfirmModal{
   border:3px solid #d64b4b;
