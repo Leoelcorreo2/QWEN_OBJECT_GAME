@@ -1206,50 +1206,56 @@ const Game = {
     });
   },
   renderAll() { this.compartments.forEach(comp => this.renderCompartment(comp)); },
-    renderCompartment(compartment) {
-    const cells = UI.getCells(compartment.element);
-    
-    // CORRECCIÓN: Primero aplicar estilos "back" a TODOS los objetos en el DOM
-    cells.forEach(cell => {
-      const allObjs = cell.querySelectorAll('.obj');
-      allObjs.forEach(obj => {
-        obj.style.pointerEvents = 'none';
-        const variantFilter = obj.style.getPropertyValue('--variant-filter') || 'none';
-        const variantColor = obj.style.getPropertyValue('--c') || '#d64b4b';
-        obj.style.filter = `${variantFilter} brightness(.58) saturate(.58)`;
-        obj.style.boxShadow = `0 0 0 2px ${variantColor} inset, 0 3px 6px #0002`;
-        obj.style.opacity = '0.22';
-        obj.classList.remove('front');
-        obj.classList.add('back');
-      });
+  renderCompartment(compartment) {
+  const cells = UI.getCells(compartment.element);
+  
+  // Limpiamos las clases y quitamos los estilos en línea forzados
+  cells.forEach(cell => {
+    const allObjs = cell.querySelectorAll('.obj');
+    allObjs.forEach(obj => {
+      obj.style.pointerEvents = 'none';
+      obj.classList.remove('front');
+      obj.classList.add('back');
+      
+      // Limpiamos los estilos inyectados que rompían el diseño 3D
+      obj.style.removeProperty('filter');
+      obj.style.removeProperty('box-shadow');
+      obj.style.removeProperty('opacity');
     });
-    
-    // Luego aplicar estilos correctos a los objetos en las capas
-    compartment.layers.forEach((layer, depth) => {
-      layer.slots.forEach((obj, slot) => {
-        if (!obj || !obj.element) return;
-        const cell = cells[slot];
-        if (!cell) return;
-        if (obj.element.parentElement !== cell) cell.appendChild(obj.element);
-        const active = depth === 0;
-        const [dx, bottom, scale] = Config.DEPTH_OFFSETS[Math.min(depth, Config.DEPTH_OFFSETS.length - 1)];
-        obj.element.dataset.depth = depth;
-        obj.element.dataset.pos = Number(cell.dataset.pos || 0);
-        obj.element.classList.toggle('front', active);
-        obj.element.classList.toggle('back', !active);
-        obj.element.style.pointerEvents = active ? 'auto' : 'none';
-        obj.element.style.setProperty('--dx', `${dx}px`);
-        obj.element.style.setProperty('--bottom', `${bottom}px`);
-        obj.element.style.setProperty('--scale', scale);
-        obj.element.style.setProperty('--z', 40 - depth);
-        obj.element.style.opacity = active ? '1' : (depth === 1 ? '.38' : '.22');
-        const variantFilter = obj.element.style.getPropertyValue('--variant-filter') || 'none';
-        obj.element.style.filter = active ? variantFilter : `${variantFilter} brightness(.58) saturate(.58)`;
-        const variantColor = obj.element.style.getPropertyValue('--c') || '#d64b4b';
-        obj.element.style.boxShadow = active ? `0 0 0 3px ${variantColor} inset, 0 4px 8px #0003` : `0 0 0 2px ${variantColor} inset, 0 3px 6px #0002`;
-      });
+  });
+  
+  compartment.layers.forEach((layer, depth) => {
+    layer.slots.forEach((obj, slot) => {
+      if (!obj || !obj.element) return;
+      const cell = cells[slot];
+      if (!cell) return;
+      
+      if (obj.element.parentElement !== cell) cell.appendChild(obj.element);
+      
+      const active = depth === 0;
+      const [dx, bottom, scale] = Config.DEPTH_OFFSETS[Math.min(depth, Config.DEPTH_OFFSETS.length - 1)];
+      
+      obj.element.dataset.depth = depth;
+      obj.element.dataset.pos = Number(cell.dataset.pos || 0);
+      
+      // Alternamos clases para que el CSS decida cómo se ven
+      obj.element.classList.toggle('front', active);
+      obj.element.classList.toggle('back', !active);
+      obj.element.style.pointerEvents = active ? 'auto' : 'none';
+      
+      // Solo actualizamos variables posicionales
+      obj.element.style.setProperty('--dx', `${dx}px`);
+      obj.element.style.setProperty('--bottom', `${bottom}px`);
+      obj.element.style.setProperty('--scale', scale);
+      obj.element.style.setProperty('--z', 40 - depth);
+      
+      // Nos aseguramos de no inyectar filter, boxShadow ni opacity aquí
+      obj.element.style.removeProperty('filter');
+      obj.element.style.removeProperty('box-shadow');
+      obj.element.style.removeProperty('opacity');
     });
-  }
+  });
+}
 };
 
 document.addEventListener('DOMContentLoaded', () => { Game.init(); });
